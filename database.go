@@ -7,7 +7,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"os"
 	"time"
 )
 
@@ -30,10 +29,11 @@ func (m BMAP) Customer() (profile Customer) {
 	return p
 }
 
-func GetMongoClient() DB {
+func (web *WebAdmin) GetMongoClient() DB {
+
 	serverAPIOptions := options.ServerAPI(options.ServerAPIVersion1)
 	clientOptions := options.Client().
-		ApplyURI(os.Getenv("MONGODB_CONNECTION_STRING")).
+		ApplyURI(web.Database.ConnectionString).
 		SetServerAPIOptions(serverAPIOptions)
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -46,12 +46,12 @@ func GetMongoClient() DB {
 	}
 }
 
-func GetOne(collection string, search bson.M) BMAP {
-	mongoClient := GetMongoClient()
+func (web *WebAdmin) GetOne(collection string, search bson.M) BMAP {
+	mongoClient := web.GetMongoClient()
 	con, cancel := context.WithTimeout(context.Background(), 15000*time.Second)
 	defer cancel()
 	defer mongoClient.Client.Disconnect(con)
-	financeDatabase := mongoClient.Client.Database(os.Getenv("MONGODB_DATABASE"))
+	financeDatabase := mongoClient.Client.Database(web.Database.Database)
 	col := financeDatabase.Collection(collection)
 	defer cancel()
 	result := col.FindOne(con, search)
@@ -65,12 +65,12 @@ func GetOne(collection string, search bson.M) BMAP {
 	return d
 }
 
-func InsertOne(collection string, data interface{}) error {
-	mongoClient := GetMongoClient()
+func (web *WebAdmin) InsertOne(collection string, data interface{}) error {
+	mongoClient := web.GetMongoClient()
 	con, cancel := context.WithTimeout(context.Background(), 15000*time.Second)
 	defer cancel()
 	defer mongoClient.Client.Disconnect(con)
-	financeDatabase := mongoClient.Client.Database(os.Getenv("MONGODB_DATABASE"))
+	financeDatabase := mongoClient.Client.Database(web.Database.Database)
 	col := financeDatabase.Collection(collection)
 	defer cancel()
 	x, err := json.Marshal(data)

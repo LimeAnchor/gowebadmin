@@ -70,6 +70,7 @@ type Page struct {
 
 type Database struct {
 	ConnectionString string
+	Database         string
 }
 
 type CustomEndpoints struct {
