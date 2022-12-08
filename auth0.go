@@ -150,7 +150,8 @@ func (web *WebAdmin) GetToken() string {
 
 	err = json.Unmarshal(body, &token)
 	if err != nil {
-
+		fmt.Println(err.Error())
+		fmt.Println(string(body))
 		return ""
 	}
 	return token.AccessToken
