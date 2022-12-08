@@ -78,24 +78,20 @@ func (web *WebAdmin) IsAuthenticated(ctx *gin.Context) {
 	valStr := GetName(profile)
 
 	profil := web.GetOne("users", bson.M{"EMail": valStr}).Customer()
-
 	if !CheckUserExists(profil) {
+
+		auth0user := web.CheckUser(web.GetToken(), valStr)
 		profil.EMail = valStr
-		profil.AuthO = GetID(profile, "user_id")
+		profil.AuthO = auth0user.UserID
 		web.InsertOne("users", profil)
-	}
-	if profil.AuthO == "" {
-		fmt.Println(profile)
-		profil.AuthO = GetID(profile, "user_id")
-		web.Upsert("users", profil, bson.D{{"EMail", valStr}}, true)
 	}
 
 	if !profil.MailVerified {
-		verified := GetBool(profile, "email_verified")
-		if verified {
+		auth0user := web.CheckUser(web.GetToken(), valStr)
+		if auth0user.EmailVerified {
 			profil.MailVerified = true
+			web.Upsert("users", profil, bson.D{{"EMail", valStr}}, true)
 		}
-		web.Upsert("users", profil, bson.D{{"EMail", valStr}}, true)
 	}
 
 	if sessions.Default(ctx).Get("profile") == nil {
