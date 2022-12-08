@@ -338,7 +338,7 @@ func (web *WebAdmin) CallbackHandler(auth *Authenticator) gin.HandlerFunc {
 			ctx.String(http.StatusInternalServerError, err.Error())
 			return
 		}
-		ctx.Redirect(http.StatusTemporaryRedirect, "/config")
+		ctx.Redirect(http.StatusTemporaryRedirect, web.Auth0.AfterLogin)
 	}
 }
 

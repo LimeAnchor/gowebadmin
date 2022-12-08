@@ -44,6 +44,7 @@ type Auth0 struct {
 	ClientId      string
 	ClientSecret  string
 	Callback      string
+	AfterLogin    string
 	Authenticator *Authenticator
 }
 
