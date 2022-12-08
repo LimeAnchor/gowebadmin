@@ -176,6 +176,8 @@ func (web *WebAdmin) CheckUser(token string, stripeEmail string) *Auth0user {
 	json.Unmarshal(body, &users)
 	if len(users) == 1 {
 		return &users[0]
+	} else {
+		fmt.Println(string(body))
 	}
 	return nil
 }
