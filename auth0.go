@@ -52,7 +52,7 @@ func CheckUserExists(profile Customer) bool {
 	return true
 }
 
-func IsAuthenticated(ctx *gin.Context) {
+func (web *WebAdmin) IsAuthenticated(ctx *gin.Context) {
 	// Check of user exists and create if not
 	// If user not found in database, create it
 	session := sessions.Default(ctx)
@@ -64,11 +64,11 @@ func IsAuthenticated(ctx *gin.Context) {
 	//Get name from profile and search for entry in database
 	valStr := GetName(profile)
 
-	profil := GetOne("webcheckcustomers", bson.M{"Title": valStr}).Customer()
+	profil := web.GetOne("users", bson.M{"Title": valStr}).Customer()
 
 	if !CheckUserExists(profil) {
 		profil.EMail = valStr
-		InsertOne("webcheckcustomers", profil)
+		web.InsertOne("users", profil)
 	}
 	if sessions.Default(ctx).Get("profile") == nil {
 		ctx.Redirect(http.StatusSeeOther, "/")
