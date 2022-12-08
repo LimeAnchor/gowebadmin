@@ -124,19 +124,26 @@ func (web *WebAdmin) GetSubscription(userid string) []string {
 
 func (web *WebAdmin) GetToken() string {
 	url := "https://" + web.Auth0.Domain + "/oauth/token"
-	payload := strings.NewReader("{\"client_id\":\"" + web.Auth0.ClientId + "\",\"client_secret\":\"" + web.Auth0.ClientSecret + "\",\"audience\":\"https://" + web.Auth0.Domain + "/api/v2/\",\"grant_type\":\"client_credentials\"}")
+	s := "{\"client_id\":\"" + web.Auth0.ClientId + "\",\"client_secret\":\"" + web.Auth0.ClientSecret + "\",\"audience\":\"https://" + web.Auth0.Domain + "/api/v2/\",\"grant_type\":\"client_credentials\"}"
+	payload := strings.NewReader(s)
 	req, err := http.NewRequest("POST", url, payload)
 	if err != nil {
+		fmt.Println(err.Error())
+		fmt.Println(s)
 		return ""
 	}
 	req.Header.Add("content-type", "application/json")
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
+		fmt.Println(err.Error())
+		fmt.Println(s)
 		return ""
 	}
 	defer res.Body.Close()
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
+		fmt.Println(err.Error())
+		fmt.Println(string(body))
 		return ""
 	}
 	var token Token
