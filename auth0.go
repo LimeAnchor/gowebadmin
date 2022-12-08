@@ -45,6 +45,19 @@ func GetID(in interface{}, typ string) string {
 	return ""
 }
 
+func GetBool(in interface{}, typ string) bool {
+	v := reflect.ValueOf(in)
+	if v.Kind() == reflect.Map {
+		for _, key := range v.MapKeys() {
+			strct := v.MapIndex(key)
+			if key.Interface() == typ {
+				return strct.Interface().(bool)
+			}
+		}
+	}
+	return false
+}
+
 func CheckUserExists(profile Customer) bool {
 	if profile.EMail == "" {
 		return false
@@ -71,8 +84,14 @@ func (web *WebAdmin) IsAuthenticated(ctx *gin.Context) {
 		profil.AuthO = GetID(profile, "user_id")
 		web.InsertOne("users", profil)
 	}
+	if profil.AuthO == "" {
+		fmt.Println(profile)
+		profil.AuthO = GetID(profile, "user_id")
+		web.Upsert("users", profil, bson.D{{"EMail", valStr}}, true)
+	}
+
 	if !profil.MailVerified {
-		verified := GetID(profile, "email_verified") == "true"
+		verified := GetBool(profile, "email_verified")
 		if verified {
 			profil.MailVerified = true
 		}
