@@ -127,6 +127,7 @@ func (web *WebAdmin) GetToken() string {
 	s := "{\"client_id\":\"" + web.Auth0.ClientId + "\",\"client_secret\":\"" + web.Auth0.ClientSecret + "\",\"audience\":\"https://" + web.Auth0.Domain + "/api/v2/\",\"grant_type\":\"client_credentials\"}"
 	payload := strings.NewReader(s)
 	req, err := http.NewRequest("POST", url, payload)
+	fmt.Println(s)
 	if err != nil {
 		fmt.Println(err.Error())
 		fmt.Println(s)
@@ -154,6 +155,7 @@ func (web *WebAdmin) GetToken() string {
 		fmt.Println(string(body))
 		return ""
 	}
+	fmt.Println(string(body))
 	return token.AccessToken
 }
 
