@@ -64,12 +64,21 @@ func (web *WebAdmin) IsAuthenticated(ctx *gin.Context) {
 	//Get name from profile and search for entry in database
 	valStr := GetName(profile)
 
-	profil := web.GetOne("users", bson.M{"Title": valStr}).Customer()
+	profil := web.GetOne("users", bson.M{"EMail": valStr}).Customer()
 
 	if !CheckUserExists(profil) {
 		profil.EMail = valStr
+		profil.AuthO = GetID(profile, "user_id")
 		web.InsertOne("users", profil)
 	}
+	if !profil.MailVerified {
+		verified := GetID(profile, "email_verified") == "true"
+		if verified {
+			profil.MailVerified = true
+		}
+		web.Upsert("users", profil, bson.D{{"EMail", valStr}}, true)
+	}
+
 	if sessions.Default(ctx).Get("profile") == nil {
 		ctx.Redirect(http.StatusSeeOther, "/")
 	} else {

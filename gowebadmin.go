@@ -30,6 +30,7 @@ type Customer struct {
 	EMail              string
 	SubscribedProducts []string
 	PaymentValid       bool
+	MailVerified       bool
 }
 
 type WebAdmin struct {

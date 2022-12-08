@@ -85,3 +85,29 @@ func (web *WebAdmin) InsertOne(collection string, data interface{}) error {
 	}
 	return err
 }
+
+func (web *WebAdmin) Upsert(collection string, data interface{}, filter bson.D, upsert bool) {
+	mongoclient := web.GetMongoClient()
+	con, cancel := context.WithTimeout(context.Background(), 15000*time.Second)
+	defer cancel()
+	defer mongoclient.Client.Disconnect(con)
+	financeDatabase := mongoclient.Client.Database(web.Database.Database)
+	col := financeDatabase.Collection(collection)
+
+	var bdoc interface{}
+	x, err := json.Marshal(data)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
+	bson.UnmarshalExtJSON(x, true, &bdoc)
+	update := bson.D{{"$set", bdoc}}
+	opts := options.Update()
+	if upsert {
+		opts.SetUpsert(true)
+	}
+	_, err = col.UpdateOne(context.TODO(), filter, update, opts)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+}
