@@ -3,7 +3,6 @@ package gowebadmin
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -27,6 +26,7 @@ func SetStripeKey(key string) {
 	stripe.Key = key
 }
 
+/*
 func (cust *Customer) CheckCustomer(customerid string) error {
 	cust.StripeAccount = customerid
 	c, err := customer.Get(customerid, nil)
@@ -49,7 +49,7 @@ func (cust *Customer) CheckCustomer(customerid string) error {
 
 func (customer Customer) CheckCustomerSubscription() []string {
 	return customer.SubscribedProducts
-}
+}*/
 
 func Wrap(f http.HandlerFunc) gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -152,9 +152,7 @@ func (web *WebAdmin) HandleWebhook(w http.ResponseWriter, req *http.Request) {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-		// Get Data from database
-		// remove subspriction
-
+		web.UpdateCustomer(subscription)
 	case "customer.subscription.updated":
 		var subscription stripe.Subscription
 		err = json.Unmarshal(event.Data.Raw, &subscription)
@@ -162,8 +160,7 @@ func (web *WebAdmin) HandleWebhook(w http.ResponseWriter, req *http.Request) {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-		// Get Data from database
-		// remove subspriction
+		web.UpdateCustomer(subscription)
 	case "customer.subscription.created":
 		var subscription stripe.Subscription
 		err = json.Unmarshal(event.Data.Raw, &subscription)
@@ -171,8 +168,7 @@ func (web *WebAdmin) HandleWebhook(w http.ResponseWriter, req *http.Request) {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-		// Get Data from database
-		// remove subspriction
+		web.UpdateCustomer(subscription)
 	case "customer.subscription.trial_will_end":
 		var subscription stripe.Subscription
 		err = json.Unmarshal(event.Data.Raw, &subscription)
@@ -180,11 +176,29 @@ func (web *WebAdmin) HandleWebhook(w http.ResponseWriter, req *http.Request) {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-		// Get Data from database
-		// remove subspriction
+		web.UpdateCustomer(subscription)
 	default:
 	}
 	w.WriteHeader(http.StatusOK)
+}
+
+func (web *WebAdmin) UpdateCustomer(sub stripe.Subscription) {
+	custId := sub.Customer.ID
+	// Check Customer
+	params := stripe.CustomerParams{}
+	params.AddExpand("subscriptions")
+
+	c, err := customer.Get(custId, &params)
+	if err != nil {
+		fmt.Println("Check Costumer failed " + err.Error())
+	}
+	if c == nil {
+		fmt.Println("Customer not found ")
+	}
+	profil := web.GetOne("profiles", bson.M{"Title": c.Email}).Customer()
+	profil.StripeAccount = custId
+	profil.SubscribedProducts = c.Subscriptions.Data
+	web.Upsert("profiles", profil, bson.D{{"Title", c.Email}}, true)
 }
 
 var tmpl *template.Template
