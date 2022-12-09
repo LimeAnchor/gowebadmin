@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/stripe/stripe-go/v72"
 	portalsession "github.com/stripe/stripe-go/v72/billingportal/session"
@@ -11,11 +13,14 @@ import (
 	"github.com/stripe/stripe-go/v72/customer"
 	"github.com/stripe/stripe-go/v72/price"
 	"github.com/stripe/stripe-go/webhook"
+	"go.mongodb.org/mongo-driver/bson"
+	"html/template"
 	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
+	"strings"
 )
 
 func SetStripeKey(key string) {
@@ -180,4 +185,66 @@ func (web *WebAdmin) HandleWebhook(w http.ResponseWriter, req *http.Request) {
 	default:
 	}
 	w.WriteHeader(http.StatusOK)
+}
+
+var tmpl *template.Template
+
+func (web *WebAdmin) InitStripeCheckout() {
+	s := `
+	<!DOCTYPE html>
+	<html>
+		<head>
+			<title>{{ .title }}</title>
+			<link rel="stylesheet" href="/public/style.css">
+			<script src="https://polyfill.io/v3/polyfill.min.js?version=3.52.1&features=fetch"></script>
+			<script src="https://js.stripe.com/v3/"></script>
+			<style>
+				.PricingTable.is-blackButtonText .PriceColumn-button {
+					color: white !important;
+				}
+			</style>
+		</head>
+		<body style="background-color: white !important;padding: 150px;">
+			<script async src="https://js.stripe.com/v3/pricing-table.js"></script>
+			<stripe-pricing-table pricing-table-id="{{ .PricingTableId }}"
+								  publishable-key="{{ .PublishableKey }}" customer-email="{{.CustomerEmail}}">
+			</stripe-pricing-table>
+		</body>
+	</html>
+	`
+	web.Stripe.CheckoutTemplate = template.Must(template.New("request.tmpl").Parse(s))
+}
+
+func (web *WebAdmin) RenderTemplate(mail string) string {
+	x := struct {
+		PricingTableId string
+		PublishableKey string
+		CustomerEmail  string
+	}{
+		PricingTableId: web.Stripe.PricingTabelId,
+		PublishableKey: web.Stripe.PublishabelKey,
+		CustomerEmail:  mail,
+	}
+	var tpl bytes.Buffer
+	err := tmpl.ExecuteTemplate(&tpl, "request.tmpl", x)
+	if err != nil {
+		fmt.Println(err)
+	}
+	return strings.ReplaceAll(strings.ReplaceAll(tpl.String(), "\n", ""), "  ", " ")
+}
+
+func (web *WebAdmin) IsCustomer(ctx *gin.Context) {
+	// Check of user exists and create if not
+	// If user not found in database, create it
+	session := sessions.Default(ctx)
+	profile := session.Get("profile")
+
+	//Get name from profile and search for entry in database
+	valStr := GetName(profile)
+	profil := web.GetOne("users", bson.M{"EMail": valStr}).Customer()
+	if profil.StripeAccount == "" {
+		ctx.String(http.StatusOK, web.RenderTemplate(valStr), gin.H{})
+	} else {
+		ctx.Next()
+	}
 }

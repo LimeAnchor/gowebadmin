@@ -2,6 +2,7 @@ package gowebadmin
 
 import (
 	"github.com/gin-gonic/gin"
+	"html/template"
 )
 
 // Router für Login
@@ -50,12 +51,15 @@ type Auth0 struct {
 }
 
 type StripeConfig struct {
-	StripeKey       string
-	EndpointSecret  string
-	WebhookSecret   string
-	LookupKey       string
-	CustomEndpoints CustomEndpoints
-	Pages           Pages
+	CheckoutTemplate *template.Template
+	PricingTabelId   string
+	PublishabelKey   string
+	StripeKey        string
+	EndpointSecret   string
+	WebhookSecret    string
+	LookupKey        string
+	CustomEndpoints  CustomEndpoints
+	Pages            Pages
 }
 
 type Pages struct {
@@ -119,13 +123,14 @@ func Gowebadmin(domain string, db Database, stripe StripeConfig, auth Auth0) *We
 	if stripe.Pages.Cancel.Path == "" {
 		stripe.Pages.Cancel.Path = "/cancel"
 	}
-
-	return &WebAdmin{
+	web := &WebAdmin{
 		domain,
 		db,
 		stripe,
 		auth,
 	}
+	web.InitStripeCheckout()
+	return web
 }
 
 func (web *WebAdmin) AddCustomer() {
