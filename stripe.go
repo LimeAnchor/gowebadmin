@@ -246,6 +246,7 @@ func (web *WebAdmin) IsCustomer(ctx *gin.Context) {
 	profil := web.GetOne("users", bson.M{"EMail": valStr}).Customer()
 	if profil.StripeAccount == "" {
 		ctx.Data(http.StatusOK, "text/html; charset=utf-8", []byte(web.RenderTemplate(valStr)))
+		return
 	} else {
 		ctx.Next()
 	}
