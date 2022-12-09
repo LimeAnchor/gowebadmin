@@ -228,7 +228,7 @@ func (web *WebAdmin) RenderTemplate(mail string) string {
 		Title:          web.Stripe.CheckoutTitle,
 	}
 	var tpl bytes.Buffer
-	err := tmpl.ExecuteTemplate(&tpl, "request.tmpl", x)
+	err := web.Stripe.CheckoutTemplate.ExecuteTemplate(&tpl, "request.tmpl", x)
 	if err != nil {
 		fmt.Println(err)
 	}
