@@ -195,10 +195,10 @@ func (web *WebAdmin) UpdateCustomer(sub stripe.Subscription) {
 	if c == nil {
 		fmt.Println("Customer not found ")
 	}
-	profil := web.GetOne("profiles", bson.M{"Title": c.Email}).Customer()
+	profil := web.GetOne("users", bson.M{"EMail": c.Email}).Customer()
 	profil.StripeAccount = custId
 	profil.SubscribedProducts = c.Subscriptions.Data
-	web.Upsert("profiles", profil, bson.D{{"Title", c.Email}}, true)
+	web.Upsert("users", profil, bson.D{{"EMail", c.Email}}, true)
 }
 
 var tmpl *template.Template
