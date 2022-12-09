@@ -194,7 +194,7 @@ func (web *WebAdmin) InitStripeCheckout() {
 	<!DOCTYPE html>
 	<html>
 		<head>
-			<title>{{ .title }}</title>
+			<title>{{ .Title }}</title>
 			<link rel="stylesheet" href="/public/style.css">
 			<script src="https://polyfill.io/v3/polyfill.min.js?version=3.52.1&features=fetch"></script>
 			<script src="https://js.stripe.com/v3/"></script>
@@ -220,10 +220,12 @@ func (web *WebAdmin) RenderTemplate(mail string) string {
 		PricingTableId string
 		PublishableKey string
 		CustomerEmail  string
+		Title          string
 	}{
 		PricingTableId: web.Stripe.PricingTabelId,
 		PublishableKey: web.Stripe.PublishabelKey,
 		CustomerEmail:  mail,
+		Title:          web.Stripe.CheckoutTitle,
 	}
 	var tpl bytes.Buffer
 	err := tmpl.ExecuteTemplate(&tpl, "request.tmpl", x)

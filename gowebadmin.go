@@ -51,6 +51,7 @@ type Auth0 struct {
 }
 
 type StripeConfig struct {
+	CheckoutTitle    string
 	CheckoutTemplate *template.Template
 	PricingTabelId   string
 	PublishabelKey   string
