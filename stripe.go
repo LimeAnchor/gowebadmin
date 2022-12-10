@@ -318,8 +318,13 @@ func (web *WebAdmin) InitStripeCheckout() {
 		</head>
 		<body style="background-color: white !important;padding: 150px;">
 			<script async src="https://js.stripe.com/v3/pricing-table.js"></script>
-			<stripe-pricing-table pricing-table-id="{{ .PricingTableId }}"
-								  publishable-key="{{ .PublishableKey }}" customer-email="{{.CustomerEmail}}" {{ if ne .Customer ""}} customer="{{.Customer}}"{{ end }}>
+			<stripe-pricing-table 
+				pricing-table-id="{{ .PricingTableId }}"
+				publishable-key="{{ .PublishableKey }}" 
+				customer-email="{{.CustomerEmail}}" 
+				{{ if ne .Customer ""}} 
+					customer="{{ .Customer }}"
+				{{ end }}>
 			</stripe-pricing-table>
 		</body>
 	</html>
@@ -374,6 +379,6 @@ func (web *WebAdmin) Checkout(ctx *gin.Context) {
 	valStr := GetName(profile)
 	profil := web.GetOne("users", bson.M{"EMail": valStr}).Customer()
 	//web.CreateCheckoutSessionBasic(ctx.Writer, ctx.Request)
-
+	fmt.Println("Stripe", profil.StripeAccount)
 	ctx.Data(http.StatusOK, "text/html; charset=utf-8", []byte(web.RenderTemplate(valStr, profil.StripeAccount)))
 }
