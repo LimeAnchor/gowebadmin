@@ -87,8 +87,8 @@ type CustomEndpoints struct {
 }
 
 func (web *WebAdmin) GetRouters(router *gin.Engine) {
-	router.Any("/create-portal-session", Wrap(web.CreatePortalSession))
-	router.Any("/create-customer-portal-session", Wrap(web.CreatePortalSession))
+	router.Any("/create-portal-session", web.CustomerWrap(web.CreatePortalSession))
+	router.Any("/create-customer-portal-session", web.CustomerWrap(web.CreatePortalSession))
 	router.Any("/webhook", Wrap(web.HandleWebhook))
 	router.GET("/login", web.LoginHandler(web.Auth0.Authenticator))
 	router.GET("/callback", web.CallbackHandler(web.Auth0.Authenticator))

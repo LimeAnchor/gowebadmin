@@ -57,6 +57,17 @@ func Wrap(f http.HandlerFunc) gin.HandlerFunc {
 	}
 }
 
+func (web *WebAdmin) CustomerWrap(f http.HandlerFunc) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		session := sessions.Default(c)
+		profile := session.Get("profile")
+		valStr := GetName(profile)
+		profil := web.GetOne("users", bson.M{"EMail": valStr}).Customer()
+		c.Request.Header.Add("customer", profil.StripeAccount)
+		f(c.Writer, c.Request)
+	}
+}
+
 func (web *WebAdmin) CreateCheckoutSessionBasic(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
@@ -99,8 +110,8 @@ func (web *WebAdmin) CreateCheckoutSessionBasic(w http.ResponseWriter, r *http.R
 }
 
 func (web *WebAdmin) CreatePortalSession(w http.ResponseWriter, r *http.Request) {
-	returnurl := web.Domain + "/config"
-	customerId := r.Header.Get("customerid")
+	returnurl := web.Domain + "/admin"
+	customerId := r.Header.Get("customer")
 
 	// Authenticate your user.
 	params := &stripe.BillingPortalSessionParams{
