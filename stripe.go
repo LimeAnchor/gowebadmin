@@ -257,26 +257,33 @@ func (web *WebAdmin) UpdateCustomer(sub stripe.Subscription) {
 			}
 		}
 	}
-	for enter, _ := range enterprisedomains {
-		newdomains = append(newdomains, Domains{
-			MaxSites:           60,
-			LinkedSubscription: enter,
-			Active:             true,
-		})
+	for enter, count := range enterprisedomains {
+		for i := 0; i < count; i++ {
+			newdomains = append(newdomains, Domains{
+				MaxSites:           60,
+				LinkedSubscription: enter,
+				Active:             true,
+			})
+		}
+
 	}
-	for enter, _ := range advanceddomains {
-		newdomains = append(newdomains, Domains{
-			MaxSites:           25,
-			LinkedSubscription: enter,
-			Active:             true,
-		})
+	for enter, count := range advanceddomains {
+		for i := 0; i < count; i++ {
+			newdomains = append(newdomains, Domains{
+				MaxSites:           25,
+				LinkedSubscription: enter,
+				Active:             true,
+			})
+		}
 	}
-	for enter, _ := range starterdomains {
-		newdomains = append(newdomains, Domains{
-			MaxSites:           25,
-			LinkedSubscription: enter,
-			Active:             true,
-		})
+	for enter, count := range starterdomains {
+		for i := 0; i < count; i++ {
+			newdomains = append(newdomains, Domains{
+				MaxSites:           10,
+				LinkedSubscription: enter,
+				Active:             true,
+			})
+		}
 	}
 	profil.Domains = newdomains
 
