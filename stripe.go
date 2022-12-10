@@ -110,7 +110,7 @@ func (web *WebAdmin) CreateCheckoutSessionBasic(w http.ResponseWriter, r *http.R
 }
 
 func (web *WebAdmin) CreatePortalSession(w http.ResponseWriter, r *http.Request) {
-	returnurl := web.Domain + "/admin"
+	returnurl := "https://" + web.Domain + "/admin"
 	customerId := r.Header.Get("customer")
 
 	// Authenticate your user.
