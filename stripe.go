@@ -208,7 +208,100 @@ func (web *WebAdmin) UpdateCustomer(sub stripe.Subscription) {
 	}
 	profil := web.GetOne("users", bson.M{"EMail": c.Email}).Customer()
 	profil.StripeAccount = custId
-	profil.SubscribedProducts = c.Subscriptions.Data
+	var subs []struct {
+		id     string
+		status string
+		items  struct {
+			data []struct {
+				quantity int
+				plan     struct {
+					nickname string
+				}
+			}
+		}
+	}
+	b, _ := json.Marshal(&c.Subscriptions.Data)
+	json.Unmarshal(b, &subs)
+	var dbsubs []DBSubscription
+	enterprisedomains := make(map[string]int)
+	advanceddomains := make(map[string]int)
+	starterdomains := make(map[string]int)
+
+	for _, sub := range subs {
+		if sub.status == "active" {
+			dbsub := DBSubscription{
+				Id: sub.id,
+			}
+			for _, item := range sub.items.data {
+				for i := 0; i < item.quantity; i++ {
+					dbsub.Products = append(dbsub.Products, Product{
+						item.plan.nickname,
+					})
+					if item.plan.nickname == "staa" || item.plan.nickname == "stam" {
+						starterdomains[sub.id]++
+					} else if item.plan.nickname == "adva" || item.plan.nickname == "advm" {
+						advanceddomains[sub.id]++
+					} else if item.plan.nickname == "entm" || item.plan.nickname == "enta" {
+						enterprisedomains[sub.id]++
+					}
+				}
+			}
+			dbsubs = append(dbsubs, dbsub)
+		}
+	}
+	profil.SubscribedProducts = dbsubs
+	// jetzt muss ich die domains anlegen
+	var newdomains []Domains
+	for _, domain := range profil.Domains {
+		if domain.MaxSites == 10 {
+			if starterdomains[domain.LinkedSubscription] == 0 {
+				// Deaktiviere, wenn nicht mehr vorhanden
+				domain.Active = false
+				newdomains = append(newdomains, domain)
+			} else {
+				starterdomains[domain.LinkedSubscription]--
+			}
+		} else if domain.MaxSites == 25 {
+			if advanceddomains[domain.LinkedSubscription] == 0 {
+				// Deaktiviere, wenn nicht mehr vorhanden
+				domain.Active = false
+				newdomains = append(newdomains, domain)
+			} else {
+				advanceddomains[domain.LinkedSubscription]--
+			}
+		} else if domain.MaxSites == 60 {
+			if enterprisedomains[domain.LinkedSubscription] == 0 {
+				// Deaktiviere, wenn nicht mehr vorhanden
+				domain.Active = false
+				newdomains = append(newdomains, domain)
+			} else {
+				enterprisedomains[domain.LinkedSubscription]--
+			}
+		}
+	}
+	for enter, _ := range enterprisedomains {
+		newdomains = append(newdomains, Domains{
+			MaxSites:           60,
+			LinkedSubscription: enter,
+			Active:             true,
+		})
+	}
+	for enter, _ := range advanceddomains {
+		newdomains = append(newdomains, Domains{
+			MaxSites:           25,
+			LinkedSubscription: enter,
+			Active:             true,
+		})
+	}
+	for enter, _ := range starterdomains {
+		newdomains = append(newdomains, Domains{
+			MaxSites:           25,
+			LinkedSubscription: enter,
+			Active:             true,
+		})
+	}
+	profil.Domains = newdomains
+
 	web.Upsert("users", profil, bson.D{{"EMail", c.Email}}, true)
 }
 
