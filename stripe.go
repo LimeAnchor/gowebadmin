@@ -208,48 +208,26 @@ func (web *WebAdmin) UpdateCustomer(sub stripe.Subscription) {
 	}
 	profil := web.GetOne("users", bson.M{"EMail": c.Email}).Customer()
 	profil.StripeAccount = custId
-	var subs []struct {
-		id     string
-		status string
-		items  struct {
-			data []struct {
-				quantity int
-				plan     struct {
-					nickname string
-				}
-			}
-		}
-	}
-	b, _ := json.Marshal(&c.Subscriptions.Data)
-	json.Unmarshal(b, &subs)
-	var dbsubs []DBSubscription
 	enterprisedomains := make(map[string]int)
 	advanceddomains := make(map[string]int)
 	starterdomains := make(map[string]int)
 
-	for _, sub := range subs {
-		if sub.status == "active" {
-			dbsub := DBSubscription{
-				Id: sub.id,
-			}
-			for _, item := range sub.items.data {
-				for i := 0; i < item.quantity; i++ {
-					dbsub.Products = append(dbsub.Products, Product{
-						item.plan.nickname,
-					})
-					if item.plan.nickname == "staa" || item.plan.nickname == "stam" {
-						starterdomains[sub.id]++
-					} else if item.plan.nickname == "adva" || item.plan.nickname == "advm" {
-						advanceddomains[sub.id]++
-					} else if item.plan.nickname == "entm" || item.plan.nickname == "enta" {
-						enterprisedomains[sub.id]++
+	for _, sub := range c.Subscriptions.Data {
+		if sub.Status == "active" {
+			for _, item := range sub.Items.Data {
+				for i := 0; i < int(item.Quantity); i++ {
+					if item.Plan.Nickname == "staa" || item.Plan.Nickname == "stam" {
+						starterdomains[sub.ID]++
+					} else if item.Plan.Nickname == "adva" || item.Plan.Nickname == "advm" {
+						advanceddomains[sub.ID]++
+					} else if item.Plan.Nickname == "entm" || item.Plan.Nickname == "enta" {
+						enterprisedomains[sub.ID]++
 					}
 				}
 			}
-			dbsubs = append(dbsubs, dbsub)
 		}
 	}
-	profil.SubscribedProducts = dbsubs
+	profil.SubscribedProducts = c.Subscriptions.Data
 	// jetzt muss ich die domains anlegen
 	var newdomains []Domains
 	for _, domain := range profil.Domains {

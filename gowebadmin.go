@@ -2,6 +2,7 @@ package gowebadmin
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/stripe/stripe-go/v72"
 	"html/template"
 )
 
@@ -29,7 +30,7 @@ type Customer struct {
 	StripeAccount      string
 	AuthO              string
 	EMail              string
-	SubscribedProducts []DBSubscription
+	SubscribedProducts []*stripe.Subscription
 	PaymentValid       bool
 	MailVerified       bool
 	Domains            []Domains
