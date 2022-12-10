@@ -69,6 +69,7 @@ func (web *WebAdmin) CustomerWrap(f http.HandlerFunc) gin.HandlerFunc {
 }
 
 func (web *WebAdmin) CreateCheckoutSessionBasic(w http.ResponseWriter, r *http.Request) {
+	customerId := r.Header.Get("customer")
 	if r.Method != "POST" {
 		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
 		return
@@ -99,6 +100,9 @@ func (web *WebAdmin) CreateCheckoutSessionBasic(w http.ResponseWriter, r *http.R
 
 		SuccessURL: stripe.String(domain + web.Stripe.CustomEndpoints.SuccessUrl + "?session_id={CHECKOUT_SESSION_ID}"),
 		CancelURL:  stripe.String(domain + web.Stripe.CustomEndpoints.CancelUrl),
+	}
+	if customerId != "" {
+		checkoutParams.Customer = &customerId
 	}
 
 	s, err := session.New(checkoutParams)
