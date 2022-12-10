@@ -319,7 +319,7 @@ func (web *WebAdmin) InitStripeCheckout() {
 		<body style="background-color: white !important;padding: 150px;">
 			<script async src="https://js.stripe.com/v3/pricing-table.js"></script>
 			<stripe-pricing-table pricing-table-id="{{ .PricingTableId }}"
-								  publishable-key="{{ .PublishableKey }}" customer-email="{{.CustomerEmail}}">
+								  publishable-key="{{ .PublishableKey }}" customer-email="{{.CustomerEmail}} {{ if ne .Customer ""}} customer="{{.Customer}}"{{ end }} ">
 			</stripe-pricing-table>
 		</body>
 	</html>
@@ -327,18 +327,23 @@ func (web *WebAdmin) InitStripeCheckout() {
 	web.Stripe.CheckoutTemplate = template.Must(template.New("request.tmpl").Parse(s))
 }
 
-func (web *WebAdmin) RenderTemplate(mail string) string {
+func (web *WebAdmin) RenderTemplate(mail string, customer string) string {
 	x := struct {
 		PricingTableId string
 		PublishableKey string
 		CustomerEmail  string
 		Title          string
+		Customer       string
 	}{
 		PricingTableId: web.Stripe.PricingTabelId,
 		PublishableKey: web.Stripe.PublishabelKey,
 		CustomerEmail:  mail,
 		Title:          web.Stripe.CheckoutTitle,
 	}
+	if customer != "" {
+		x.Customer = customer
+	}
+
 	var tpl bytes.Buffer
 	err := web.Stripe.CheckoutTemplate.ExecuteTemplate(&tpl, "request.tmpl", x)
 	if err != nil {
@@ -367,5 +372,8 @@ func (web *WebAdmin) Checkout(ctx *gin.Context) {
 	session := sessions.Default(ctx)
 	profile := session.Get("profile")
 	valStr := GetName(profile)
-	ctx.Data(http.StatusOK, "text/html; charset=utf-8", []byte(web.RenderTemplate(valStr)))
+	profil := web.GetOne("users", bson.M{"EMail": valStr}).Customer()
+	//web.CreateCheckoutSessionBasic(ctx.Writer, ctx.Request)
+
+	ctx.Data(http.StatusOK, "text/html; charset=utf-8", []byte(web.RenderTemplate(valStr, profil.StripeAccount)))
 }
