@@ -79,7 +79,6 @@ func (web *WebAdmin) IsAuthenticated(ctx *gin.Context) {
 
 	profil := web.GetOne("users", bson.M{"EMail": valStr}).Customer()
 	if !CheckUserExists(profil) {
-
 		auth0user := web.CheckUser(web.GetToken(), valStr)
 		profil.EMail = valStr
 		profil.AuthO = auth0user.UserID
@@ -91,7 +90,10 @@ func (web *WebAdmin) IsAuthenticated(ctx *gin.Context) {
 		if auth0user.EmailVerified {
 			profil.MailVerified = true
 			web.Upsert("users", profil, bson.D{{"EMail", valStr}}, true)
+		} else {
+			ctx.Redirect(http.StatusSeeOther, "/verify")
 		}
+
 	}
 
 	if sessions.Default(ctx).Get("profile") == nil {
@@ -99,6 +101,32 @@ func (web *WebAdmin) IsAuthenticated(ctx *gin.Context) {
 	} else {
 		ctx.Next()
 	}
+}
+
+func (web *WebAdmin) VerifyEmailBlock(ctx *gin.Context) {
+	ctx.Data(http.StatusOK, "text/html; charset=utf-8", []byte(`
+		<!DOCTYPE html>
+		<html lang="en">
+		<head>
+		  <meta charset="UTF-8">
+		  <link rel="stylesheet" href="/public/styles.css">
+		  </head>
+		<body style="background-color:#213c5e">
+		<section style="padding: 300px;min-height: 100%; color: white">
+		  <div class="product Box-root">
+			<div class="description Box-root">
+			  <h3>Bitte bestätige zunächst Deine E-Mail Adresse</h3>
+			</div>
+		  </div>
+		  <br>
+		  <form action="/admin" method="GET">
+			<input type="hidden" id="session-id" name="session_id" value="" />
+			<button class="btn btn-light" id="checkout-and-portal-button" type="submit">Erneut prüfen</button>
+		  </form>
+		</section>
+		</body>
+	</html>
+	`))
 }
 
 type Subscription struct {

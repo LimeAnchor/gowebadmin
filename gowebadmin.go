@@ -94,6 +94,7 @@ func (web *WebAdmin) GetRouters(router *gin.Engine) {
 	router.GET("/callback", web.CallbackHandler(web.Auth0.Authenticator))
 	router.GET("/logout", web.LogoutHandler)
 	router.GET("/checkout", web.Checkout)
+	router.GET("/verify", web.VerifyEmailBlock)
 }
 
 func Gowebadmin(domain string, db Database, stripe StripeConfig, auth Auth0) *WebAdmin {
