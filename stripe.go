@@ -319,7 +319,7 @@ func (web *WebAdmin) InitStripeCheckout() {
 		<body style="background-color: white !important;padding: 150px;">
 			<script async src="https://js.stripe.com/v3/pricing-table.js"></script>
 			<stripe-pricing-table pricing-table-id="{{ .PricingTableId }}"
-								  publishable-key="{{ .PublishableKey }}" customer-email="{{.CustomerEmail}} {{ if ne .Customer ""}} customer="{{.Customer}}"{{ end }} ">
+								  publishable-key="{{ .PublishableKey }}" customer-email="{{.CustomerEmail}}" {{ if ne .Customer ""}} customer="{{.Customer}}"{{ end }}>
 			</stripe-pricing-table>
 		</body>
 	</html>
