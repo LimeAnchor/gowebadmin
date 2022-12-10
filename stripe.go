@@ -324,6 +324,7 @@ func (web *WebAdmin) InitStripeCheckout() {
 				customer-email="{{.CustomerEmail}}" 
 				{{ if ne .Customer ""}} 
 					customer="{{ .Customer }}"
+					client-reference-id="{{ .Customer }}"
 				{{ end }}>
 			</stripe-pricing-table>
 		</body>
