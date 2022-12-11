@@ -113,6 +113,8 @@ func (web *WebAdmin) GetRouters(router *gin.Engine) {
 	router.GET("/logout", web.LogoutHandler)
 	router.GET("/checkout", web.Checkout)
 	router.GET("/verify", web.VerifyEmailBlock)
+	router.Any("/create-checkout-session", Wrap(web.CreateCheckoutSessionBasic))
+
 }
 
 func Gowebadmin(domain string, db Database, stripe StripeConfig, auth Auth0) *WebAdmin {
