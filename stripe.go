@@ -10,7 +10,6 @@ import (
 	portalsession "github.com/stripe/stripe-go/v72/billingportal/session"
 	"github.com/stripe/stripe-go/v72/checkout/session"
 	"github.com/stripe/stripe-go/v72/customer"
-	"github.com/stripe/stripe-go/v72/price"
 	"github.com/stripe/stripe-go/webhook"
 	"go.mongodb.org/mongo-driver/bson"
 	"html/template"
@@ -75,41 +74,21 @@ func (web *WebAdmin) CreateCheckoutSessionBasic(w http.ResponseWriter, r *http.R
 		return
 	}
 	r.ParseForm()
-	lookup_key := r.PostFormValue(web.Stripe.LookupKey)
 	domain := os.Getenv(web.Domain)
-	params := &stripe.PriceListParams{
-		LookupKeys: stripe.StringSlice([]string{
-			lookup_key,
-		}),
-	}
-	i := price.List(params)
-	var price *stripe.Price
-	for i.Next() {
-		p := i.Price()
-		price = p
-	}
 
 	checkoutParams := &stripe.CheckoutSessionParams{
 		Mode: stripe.String(string(stripe.CheckoutSessionModeSubscription)),
-		LineItems: []*stripe.CheckoutSessionLineItemParams{
-			&stripe.CheckoutSessionLineItemParams{
-				Price:    stripe.String(price.ID),
-				Quantity: stripe.Int64(1),
-			},
-		},
-
+		PaymentMethodTypes: stripe.StringSlice([]string{
+			"card",
+		}),
+		Customer:   &customerId,
 		SuccessURL: stripe.String(domain + web.Stripe.CustomEndpoints.SuccessUrl + "?session_id={CHECKOUT_SESSION_ID}"),
 		CancelURL:  stripe.String(domain + web.Stripe.CustomEndpoints.CancelUrl),
 	}
-	if customerId != "" {
-		checkoutParams.Customer = &customerId
-	}
-
 	s, err := session.New(checkoutParams)
 	if err != nil {
 		log.Printf("session.New: %v", err)
 	}
-
 	http.Redirect(w, r, s.URL, http.StatusSeeOther)
 }
 
