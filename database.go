@@ -47,7 +47,7 @@ func (m BMAP) Security() (sec Sec) {
 }
 
 type Authority struct {
-	Date2  primitive.DateTime `json:"date"`
+	Date   primitive.DateTime `json:"date"`
 	Result struct {
 		Url             string `json:"url"`
 		DomainAuthority int    `json:"domainAuthority"`
