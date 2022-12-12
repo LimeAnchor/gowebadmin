@@ -191,8 +191,32 @@ func (web *WebAdmin) UpdateCustomer(sub stripe.Subscription) {
 	}
 	profil := web.GetOne("users", bson.M{"EMail": c.Email}).Customer()
 	profil.StripeAccount = custId
-
 	profil.SubscribedProducts = c.Subscriptions.Data
+	var size int64
+	for _, subs := range profil.SubscribedProducts {
+		if subs.Status == "active" {
+			for _, data := range subs.Items.Data {
+				if data.Plan.Active {
+					size = data.Quantity
+				}
+			}
+		}
+	}
+	if size > 0 {
+		if profil.Domain.UsedSites == 0 {
+			profil.Domain = Domains{
+				MaxSites:           size,
+				UsedSites:          0,
+				Sites:              []string{},
+				LinkedSubscription: "",
+				Address:            "",
+				Active:             true,
+			}
+		} else {
+			profil.Domain.MaxSites = size
+		}
+	}
+
 	// jetzt muss ich die domains anlegen
 	web.Upsert("users", profil, bson.D{{"EMail", c.Email}}, true)
 }
