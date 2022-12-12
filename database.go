@@ -47,6 +47,7 @@ func (m BMAP) Security() (sec Sec) {
 
 type Authority struct {
 	Domain string
+	Value  string
 }
 
 func (m BMAP) Authority() (auth Authority) {
