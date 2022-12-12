@@ -33,7 +33,7 @@ type Customer struct {
 	SubscribedProducts []*stripe.Subscription
 	PaymentValid       bool
 	MailVerified       bool
-	Domains            []Domains
+	Domain             Domains
 }
 
 type DBSubscription struct {
@@ -46,7 +46,8 @@ type Product struct {
 }
 
 type Domains struct {
-	MaxSites           int
+	MaxSites           int64
+	UsedSites          int64
 	Sites              []string
 	LinkedSubscription string
 	Address            string
