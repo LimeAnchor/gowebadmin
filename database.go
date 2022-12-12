@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"time"
@@ -46,7 +47,7 @@ func (m BMAP) Security() (sec Sec) {
 }
 
 type Authority struct {
-	Date   time.Time `json:"date"`
+	Date2  primitive.Timestamp `json:"date"`
 	Result struct {
 		Url             string `json:"url"`
 		DomainAuthority int    `json:"domainAuthority"`
