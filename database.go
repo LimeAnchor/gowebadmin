@@ -63,8 +63,25 @@ type Authority struct {
 	} `json:"resultInfo"`
 }
 
-func (m BMAP) Authority() (auth Authority) {
-	var p Authority
+type GetAuthority struct {
+	Date   time.Time `json:"date"`
+	Result struct {
+		Url             string `json:"url"`
+		DomainAuthority int    `json:"domainAuthority"`
+		PageAuthority   int    `json:"pageAuthority"`
+		IsDomain        bool   `json:"isDomain"`
+		Message         string `json:"message"`
+	} `json:"result"`
+	ResultInfo struct {
+		Message       string `json:"message"`
+		ElapsedTime   int    `json:"elapsedTime"`
+		Success       bool   `json:"success"`
+		InMaintenance bool   `json:"inMaintenance"`
+	} `json:"resultInfo"`
+}
+
+func (m BMAP) Authority() (auth GetAuthority) {
+	var p GetAuthority
 	bsonBytes, err := bson.Marshal(m)
 	if err != nil {
 		fmt.Println(err)
