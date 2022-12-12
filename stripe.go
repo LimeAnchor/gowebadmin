@@ -205,6 +205,7 @@ func (web *WebAdmin) UpdateCustomer(sub stripe.Subscription) {
 	if size > 0 {
 		if profil.Domain.UsedSites == 0 {
 			profil.Domain = Domains{
+				Domain:             "",
 				MaxSites:           size,
 				UsedSites:          0,
 				Sites:              []string{},

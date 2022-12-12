@@ -46,6 +46,7 @@ type Product struct {
 }
 
 type Domains struct {
+	Domain             string
 	MaxSites           int64
 	UsedSites          int64
 	Sites              []string
