@@ -193,11 +193,13 @@ func (web *WebAdmin) UpdateCustomer(sub stripe.Subscription) {
 	profil.StripeAccount = custId
 	profil.SubscribedProducts = c.Subscriptions.Data
 	var size int64
+	subid := ""
 	for _, subs := range profil.SubscribedProducts {
 		if subs.Status == "active" {
 			for _, data := range subs.Items.Data {
 				if data.Plan.Active {
 					size = data.Quantity
+					subid = data.Subscription
 				}
 			}
 		}
@@ -209,7 +211,7 @@ func (web *WebAdmin) UpdateCustomer(sub stripe.Subscription) {
 				MaxSites:           size,
 				UsedSites:          0,
 				Sites:              []string{},
-				LinkedSubscription: "",
+				LinkedSubscription: subid,
 				Address:            "",
 				Active:             true,
 			}
