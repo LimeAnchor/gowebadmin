@@ -46,8 +46,19 @@ func (m BMAP) Security() (sec Sec) {
 }
 
 type Authority struct {
-	Domain string
-	Value  string
+	Result struct {
+		Url             string `json:"url"`
+		DomainAuthority int    `json:"domainAuthority"`
+		PageAuthority   int    `json:"pageAuthority"`
+		IsDomain        bool   `json:"isDomain"`
+		Message         string `json:"message"`
+	} `json:"result"`
+	ResultInfo struct {
+		Message       string `json:"message"`
+		ElapsedTime   int    `json:"elapsedTime"`
+		Success       bool   `json:"success"`
+		InMaintenance bool   `json:"inMaintenance"`
+	} `json:"resultInfo"`
 }
 
 func (m BMAP) Authority() (auth Authority) {
