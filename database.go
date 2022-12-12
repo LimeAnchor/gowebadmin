@@ -29,6 +29,36 @@ func (m BMAP) Customer() (profile Customer) {
 	return p
 }
 
+type Sec struct {
+	IPAddress string
+	Continent string
+	Country   string
+}
+
+func (m BMAP) Security() (sec Sec) {
+	var p Sec
+	bsonBytes, err := bson.Marshal(m)
+	if err != nil {
+		fmt.Println(err)
+	}
+	bson.Unmarshal(bsonBytes, &p)
+	return p
+}
+
+type Authority struct {
+	domain string
+}
+
+func (m BMAP) Authority() (auth Authority) {
+	var p Authority
+	bsonBytes, err := bson.Marshal(m)
+	if err != nil {
+		fmt.Println(err)
+	}
+	bson.Unmarshal(bsonBytes, &p)
+	return p
+}
+
 func (web *WebAdmin) GetMongoClient() DB {
 
 	serverAPIOptions := options.ServerAPI(options.ServerAPIVersion1)
