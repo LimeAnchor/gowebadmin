@@ -90,6 +90,25 @@ func (m BMAP) Authority() (auth GetAuthority) {
 	return p
 }
 
+func (web *WebAdmin) GetAll(collection string, search bson.M) []BMAP {
+	mongoClient := web.GetMongoClient()
+	con, cancel := context.WithTimeout(context.Background(), 15000*time.Second)
+	defer cancel()
+	defer mongoClient.Client.Disconnect(con)
+	financeDatabase := mongoClient.Client.Database(web.Database.Database)
+	col := financeDatabase.Collection(collection)
+	defer cancel()
+	result, _ := col.Find(con, search)
+
+	var d []BMAP
+	err := result.Decode(&d)
+	fmt.Println(d)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	return d
+}
+
 func (web *WebAdmin) GetMongoClient() DB {
 
 	serverAPIOptions := options.ServerAPI(options.ServerAPIVersion1)
