@@ -33,6 +33,7 @@ type Customer struct {
 	SubscribedProducts []*stripe.Subscription
 	PaymentValid       bool
 	MailVerified       bool
+	AboDetails string
 }
 
 type DBSubscription struct {

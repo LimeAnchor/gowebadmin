@@ -269,7 +269,7 @@ func (web *WebAdmin) IsCustomer(ctx *gin.Context) {
 	//Get name from profile and search for entry in database
 	valStr := GetName(profile)
 	profil := web.GetOne(web.Collection, bson.M{web.MailTitle: valStr}).Customer()
-	if profil.StripeAccount == "" {
+	if profil.StripeAccount == "" && profil.AboDetails == "" {
 		ctx.Redirect(http.StatusSeeOther, "/checkout")
 		return
 	}
