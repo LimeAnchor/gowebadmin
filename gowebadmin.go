@@ -57,9 +57,11 @@ type Domains struct {
 
 type WebAdmin struct {
 	Domain   string
+	Collection string
 	Database Database
 	Stripe   StripeConfig
 	Auth0    Auth0
+	MailTitle string
 }
 
 type Auth0 struct {
@@ -69,6 +71,8 @@ type Auth0 struct {
 	Callback      string
 	AfterLogin    string
 	Authenticator *Authenticator
+	ClientIdAPI string
+	ClientSecretAPI string
 }
 
 type StripeConfig struct {
@@ -119,7 +123,7 @@ func (web *WebAdmin) GetRouters(router *gin.Engine) {
 
 }
 
-func Gowebadmin(domain string, db Database, stripe StripeConfig, auth Auth0) *WebAdmin {
+func Gowebadmin(domain string, db Database, stripe StripeConfig, auth Auth0, coll string, id string) *WebAdmin {
 	// Init Webpages
 	SetStripeKey(stripe.StripeKey)
 	if stripe.CustomEndpoints.SuccessUrl == "" {
@@ -151,9 +155,11 @@ func Gowebadmin(domain string, db Database, stripe StripeConfig, auth Auth0) *We
 	}
 	web := &WebAdmin{
 		domain,
+		coll,
 		db,
 		stripe,
 		auth,
+		id,
 	}
 	web.InitStripeCheckout()
 	return web

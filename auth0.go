@@ -79,17 +79,15 @@ func (web *WebAdmin) IsAuthenticated(ctx *gin.Context) {
 
 	profil := web.GetOne("users", bson.M{"EMail": valStr}).Customer()
 	if !CheckUserExists(profil) {
-		auth0user := web.CheckUser(web.GetToken(), valStr)
 		profil.EMail = valStr
-		profil.AuthO = auth0user.UserID
-		web.InsertOne("users", profil)
+		web.InsertOne(web.Collection, profil)
 	}
 
 	if !profil.MailVerified {
 		auth0user := web.CheckUser(web.GetToken(), valStr)
 		if auth0user.EmailVerified {
 			profil.MailVerified = true
-			web.Upsert("users", profil, bson.D{{"EMail", valStr}}, true)
+			web.Upsert(web.Collection, profil, bson.D{{web.MailTitle, valStr}}, true)
 		} else {
 			ctx.Redirect(http.StatusSeeOther, "/verify")
 		}
@@ -152,7 +150,7 @@ func (web *WebAdmin) GetSubscription(userid string) []string {
 
 func (web *WebAdmin) GetToken() string {
 	url := "https://" + web.Auth0.Domain + "/oauth/token"
-	s := "{\"client_id\":\"" + web.Auth0.ClientId + "\",\"client_secret\":\"" + web.Auth0.ClientSecret + "\",\"audience\":\"https://" + web.Auth0.Domain + "/api/v2/\",\"grant_type\":\"client_credentials\"}"
+	s := "{\"client_id\":\"" + web.Auth0.ClientIdAPI + "\",\"client_secret\":\"" + web.Auth0.ClientSecretAPI + "\",\"audience\":\"https://" + web.Auth0.Domain + "/api/v2/\",\"grant_type\":\"client_credentials\"}"
 	payload := strings.NewReader(s)
 	req, err := http.NewRequest("POST", url, payload)
 	fmt.Println(s)

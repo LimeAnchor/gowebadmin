@@ -25,6 +25,8 @@ func SetStripeKey(key string) {
 	stripe.Key = key
 }
 
+
+
 /*
 func (cust *Customer) CheckCustomer(customerid string) error {
 	cust.StripeAccount = customerid
@@ -61,7 +63,7 @@ func (web *WebAdmin) CustomerWrap(f http.HandlerFunc) gin.HandlerFunc {
 		session := sessions.Default(c)
 		profile := session.Get("profile")
 		valStr := GetName(profile)
-		profil := web.GetOne("users", bson.M{"EMail": valStr}).Customer()
+		profil := web.GetOne(web.Collection, bson.M{web.MailTitle: valStr}).Customer()
 		c.Request.Header.Add("customer", profil.StripeAccount)
 		f(c.Writer, c.Request)
 	}
@@ -189,7 +191,7 @@ func (web *WebAdmin) UpdateCustomer(sub stripe.Subscription) {
 	if c == nil {
 		fmt.Println("Customer not found ")
 	}
-	profil := web.GetOne("users", bson.M{"EMail": c.Email}).Customer()
+	profil := web.GetOne(web.Collection, bson.M{web.MailTitle: c.Email}).Customer()
 	profil.StripeAccount = custId
 	profil.SubscribedProducts = c.Subscriptions.Data
 	var size int64
@@ -221,7 +223,7 @@ func (web *WebAdmin) UpdateCustomer(sub stripe.Subscription) {
 	}
 
 	// jetzt muss ich die domains anlegen
-	web.Upsert("users", profil, bson.D{{"EMail", c.Email}}, true)
+	web.Upsert(web.Collection, profil, bson.D{{web.MailTitle, c.Email}}, true)
 }
 
 var tmpl *template.Template
@@ -291,10 +293,9 @@ func (web *WebAdmin) IsCustomer(ctx *gin.Context) {
 
 	//Get name from profile and search for entry in database
 	valStr := GetName(profile)
-	profil := web.GetOne("users", bson.M{"EMail": valStr}).Customer()
+	profil := web.GetOne(web.Collection, bson.M{web.MailTitle: valStr}).Customer()
 	if profil.StripeAccount == "" {
 		ctx.Redirect(http.StatusSeeOther, "/checkout")
-		//ctx.Data(http.StatusOK, "text/html; charset=utf-8", []byte(web.RenderTemplate(valStr)))
 		return
 	}
 }
@@ -303,8 +304,6 @@ func (web *WebAdmin) Checkout(ctx *gin.Context) {
 	session := sessions.Default(ctx)
 	profile := session.Get("profile")
 	valStr := GetName(profile)
-	profil := web.GetOne("users", bson.M{"EMail": valStr}).Customer()
-	//web.CreateCheckoutSessionBasic(ctx.Writer, ctx.Request)
-	fmt.Println("Stripe", profil.StripeAccount)
+	profil := web.GetOne(web.Collection, bson.M{web.MailTitle: valStr}).Customer()
 	ctx.Data(http.StatusOK, "text/html; charset=utf-8", []byte(web.RenderTemplate(valStr, profil.StripeAccount)))
 }
