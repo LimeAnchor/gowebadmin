@@ -77,7 +77,7 @@ func (web *WebAdmin) IsAuthenticated(ctx *gin.Context) {
 	//Get name from profile and search for entry in database
 	valStr := GetName(profile)
 
-	profil := web.GetOne("users", bson.M{"EMail": valStr}).Customer()
+	profil := web.GetOne(web.Collection, bson.M{"EMail": valStr}).Customer()
 	if !CheckUserExists(profil) {
 		profil.EMail = valStr
 		profil.Title = valStr
