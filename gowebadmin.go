@@ -33,7 +33,6 @@ type Customer struct {
 	SubscribedProducts []*stripe.Subscription
 	PaymentValid       bool
 	MailVerified       bool
-	Domain             Domains
 }
 
 type DBSubscription struct {
@@ -62,6 +61,7 @@ type WebAdmin struct {
 	Stripe   StripeConfig
 	Auth0    Auth0
 	MailTitle string
+	VerifyPath string
 }
 
 type Auth0 struct {
@@ -123,7 +123,7 @@ func (web *WebAdmin) GetRouters(router *gin.Engine) {
 
 }
 
-func Gowebadmin(domain string, db Database, stripe StripeConfig, auth Auth0, coll string, id string) *WebAdmin {
+func Gowebadmin(domain string, db Database, stripe StripeConfig, auth Auth0, coll string, id string, verify string) *WebAdmin {
 	// Init Webpages
 	SetStripeKey(stripe.StripeKey)
 	if stripe.CustomEndpoints.SuccessUrl == "" {
@@ -160,6 +160,7 @@ func Gowebadmin(domain string, db Database, stripe StripeConfig, auth Auth0, col
 		stripe,
 		auth,
 		id,
+		verify,
 	}
 	web.InitStripeCheckout()
 	return web
