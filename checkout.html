@@ -10,11 +10,14 @@
     .PricingTable.is-blackButtonText .PriceColumn-button {
         color: white !important;
     }
+    {{ .customcss }}
 </style>
-<body style="background-color: white !important;padding: 150px;">
+<body style="padding: 150px;">
+{{ .customhead }}
 <script async src="https://js.stripe.com/v3/pricing-table.js"></script>
 <stripe-pricing-table pricing-table-id="{{ .pricingTableId }}"
                       publishable-key="{{ .publishableKey }}" customer-email="{{.CUSTOMER_EMAIL}}">
 </stripe-pricing-table>
+{{ .customfooter }}
 </body>
 </html>

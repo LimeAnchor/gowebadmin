@@ -28,6 +28,7 @@ import (
 
 type Customer struct {
 	StripeAccount      string
+	Title string
 	AuthO              string
 	EMail              string
 	SubscribedProducts []*stripe.Subscription

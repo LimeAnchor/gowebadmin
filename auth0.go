@@ -59,7 +59,7 @@ func GetBool(in interface{}, typ string) bool {
 }
 
 func CheckUserExists(profile Customer) bool {
-	if profile.EMail == "" {
+	if profile.EMail == "" && profile.Title == "" {
 		return false
 	}
 	return true
@@ -80,6 +80,7 @@ func (web *WebAdmin) IsAuthenticated(ctx *gin.Context) {
 	profil := web.GetOne("users", bson.M{"EMail": valStr}).Customer()
 	if !CheckUserExists(profil) {
 		profil.EMail = valStr
+		profil.Title = valStr
 		web.InsertOne(web.Collection, profil)
 	}
 
