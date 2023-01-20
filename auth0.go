@@ -89,7 +89,7 @@ func (web *WebAdmin) IsAuthenticated(ctx *gin.Context) {
 			profil.MailVerified = true
 			web.Upsert(web.Collection, profil, bson.D{{web.MailTitle, valStr}}, true)
 		} else {
-			ctx.Redirect(http.StatusSeeOther, "/verify")
+			ctx.Redirect(http.StatusSeeOther, web.VerifyPath)
 		}
 
 	}
