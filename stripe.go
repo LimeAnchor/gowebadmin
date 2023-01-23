@@ -64,7 +64,7 @@ func (web *WebAdmin) CustomerWrap(f http.HandlerFunc) gin.HandlerFunc {
 		profile := session.Get("profile")
 		valStr := GetName(profile)
 		profil := web.GetOne(web.Collection, bson.M{web.MailTitle: valStr}).Customer()
-		c.Request.Header.Add("customer", profil.StripeAccount)
+		c.Request.Header.Add("customer", profil.AboDetails)
 		f(c.Writer, c.Request)
 	}
 }
