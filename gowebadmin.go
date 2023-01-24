@@ -123,6 +123,7 @@ func (web *WebAdmin) GetRouters(router *gin.Engine) {
 	router.GET("/callback", web.CallbackHandler(web.Auth0.Authenticator))
 	router.GET("/logout", web.LogoutHandler)
 	router.GET("/checkout", web.Checkout)
+	router.GET("/abo", web.Checkout)
 	router.GET("/verify", web.VerifyEmailBlock)
 	router.Any("/create-checkout-session", Wrap(web.CreateCheckoutSessionBasic))
 
