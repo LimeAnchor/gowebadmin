@@ -276,7 +276,7 @@ func (web *WebAdmin) IsCustomer(ctx *gin.Context) {
 	profil := web.GetOne(web.Collection, bson.M{web.MailTitle: valStr}).Customer()
 	if profil.StripeAccount == "" && profil.AboDetails == "" {
 		fmt.Println("Forward to checkout: ", valStr)
-		ctx.Redirect(http.StatusSeeOther, "/checkout")
+		ctx.Redirect(http.StatusSeeOther, "/abo")
 		return
 	}
 }
