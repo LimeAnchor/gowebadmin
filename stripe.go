@@ -205,32 +205,29 @@ var tmpl *template.Template
 
 func (web *WebAdmin) InitStripeCheckout() {
 	s := `
-	<!DOCTYPE html>
-	<html>
-		<head>
-			<title>{{ .Title }}</title>
-			<link rel="stylesheet" href="/public/style.css">
-			<script src="https://polyfill.io/v3/polyfill.min.js?version=3.52.1&features=fetch"></script>
-			<script src="https://js.stripe.com/v3/"></script>
-			<style>
-				.PricingTable.is-blackButtonText .PriceColumn-button {
-					color: white !important;
-				}
-			</style>
-		</head>
-		<body style="background-color: white !important;padding: 150px;">
-			<script async src="https://js.stripe.com/v3/pricing-table.js"></script>
-			<stripe-pricing-table 
-				pricing-table-id="{{ .PricingTableId }}"
-				publishable-key="{{ .PublishableKey }}" 
-				customer-email="{{.CustomerEmail}}" 
-				{{ if ne .Customer ""}} 
-					customer="{{ .Customer }}"
-					client-reference-id="{{ .Customer }}"
-				{{ end }}>
-			</stripe-pricing-table>
-		</body>
-	</html>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ .Title }}</title>
+    <link rel="stylesheet" href="/public/style.css">
+    <script src="https://polyfill.io/v3/polyfill.min.js?version=3.52.1&features=fetch"></script>
+    <script src="https://js.stripe.com/v3/"></script>
+</head>
+<style>
+    .PricingTable.is-blackButtonText .PriceColumn-button {
+        color: white !important;
+    }
+    {{ .Customcss }}
+</style>
+<body style="padding: 150px;">
+{{ .Customhead }}
+<script async src="https://js.stripe.com/v3/pricing-table.js"></script>
+<stripe-pricing-table pricing-table-id="{{ .PricingTableId }}"
+                      publishable-key="{{ .PublishableKey }}" customer-email="{{.CustomerEmail}}">
+</stripe-pricing-table>
+{{ .Customfooter }}
+</body>
+</html>
 	`
 	web.Stripe.CheckoutTemplate = template.Must(template.New("request.tmpl").Parse(s))
 }
@@ -242,11 +239,17 @@ func (web *WebAdmin) RenderTemplate(mail string, customer string) string {
 		CustomerEmail  string
 		Title          string
 		Customer       string
+		Customcss string
+		Customhead string
+		Customfooter string
 	}{
 		PricingTableId: web.Stripe.PricingTabelId,
 		PublishableKey: web.Stripe.PublishabelKey,
 		CustomerEmail:  mail,
 		Title:          web.Stripe.CheckoutTitle,
+		Customcss: web.Stripe.CustomCss,
+		Customhead: web.Stripe.CustomHead,
+		Customfooter: web.Stripe.CustomBody,
 	}
 	if customer != "" {
 		x.Customer = customer
@@ -272,6 +275,7 @@ func (web *WebAdmin) IsCustomer(ctx *gin.Context) {
 	fmt.Println("try check out with: ", valStr)
 	profil := web.GetOne(web.Collection, bson.M{web.MailTitle: valStr}).Customer()
 	if profil.StripeAccount == "" && profil.AboDetails == "" {
+		fmt.Println("Forward to checkout: ", valStr)
 		ctx.Redirect(http.StatusSeeOther, "/checkout")
 		return
 	}

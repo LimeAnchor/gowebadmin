@@ -88,6 +88,9 @@ type StripeConfig struct {
 	LookupKey        string
 	CustomEndpoints  CustomEndpoints
 	Pages            Pages
+	CustomHead string
+	CustomBody string
+	CustomCss string
 }
 
 type Pages struct {
