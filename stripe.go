@@ -287,5 +287,6 @@ func (web *WebAdmin) Checkout(ctx *gin.Context) {
 	if profil.StripeAccount == "" {
 		account = profil.AboDetails
 	}
+	fmt.Println("used mail is ",account )
 	ctx.Data(http.StatusOK, "text/html; charset=utf-8", []byte(web.RenderTemplate(valStr,account)))
 }
