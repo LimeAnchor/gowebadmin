@@ -251,6 +251,7 @@ func (web *WebAdmin) RenderTemplate(mail string, customer string) string {
 	if customer != "" {
 		x.Customer = customer
 	}
+	fmt.Println("Render Tempalte Mail ", mail)
 
 	var tpl bytes.Buffer
 	err := web.Stripe.CheckoutTemplate.ExecuteTemplate(&tpl, "request.tmpl", x)
