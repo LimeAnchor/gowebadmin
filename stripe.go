@@ -259,15 +259,16 @@ func (web *WebAdmin) RenderTemplate(mail string, customer string) string {
 	}
 	return strings.ReplaceAll(strings.ReplaceAll(tpl.String(), "\n", ""), "  ", " ")
 }
-
 func (web *WebAdmin) IsCustomer(ctx *gin.Context) {
+
 	// Check of user exists and create if not
 	// If user not found in database, create it
 	session := sessions.Default(ctx)
 	profile := session.Get("profile")
-
+	fmt.Println("try check out with profile: ", profile)
 	//Get name from profile and search for entry in database
 	valStr := GetName(profile)
+	fmt.Println("try check out with: ", valStr)
 	profil := web.GetOne(web.Collection, bson.M{web.MailTitle: valStr}).Customer()
 	if profil.StripeAccount == "" && profil.AboDetails == "" {
 		ctx.Redirect(http.StatusSeeOther, "/checkout")
@@ -278,7 +279,10 @@ func (web *WebAdmin) IsCustomer(ctx *gin.Context) {
 func (web *WebAdmin) Checkout(ctx *gin.Context) {
 	session := sessions.Default(ctx)
 	profile := session.Get("profile")
+	fmt.Println("try check out with profile: ", profile)
 	valStr := GetName(profile)
+	fmt.Println("try check out with: ", valStr)
+
 	profil := web.GetOne(web.Collection, bson.M{web.MailTitle: valStr}).Customer()
 	ctx.Data(http.StatusOK, "text/html; charset=utf-8", []byte(web.RenderTemplate(valStr, profil.StripeAccount)))
 }
