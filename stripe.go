@@ -279,10 +279,13 @@ func (web *WebAdmin) IsCustomer(ctx *gin.Context) {
 func (web *WebAdmin) Checkout(ctx *gin.Context) {
 	session := sessions.Default(ctx)
 	profile := session.Get("profile")
-	fmt.Println("try check out with profile: ", profile)
+	fmt.Println("CH: try check out with profile: ", profile)
 	valStr := GetName(profile)
-	fmt.Println("try check out with: ", valStr)
-
+	fmt.Println("CH: try check out with: ", valStr)
 	profil := web.GetOne(web.Collection, bson.M{web.MailTitle: valStr}).Customer()
-	ctx.Data(http.StatusOK, "text/html; charset=utf-8", []byte(web.RenderTemplate(valStr, profil.StripeAccount)))
+	account := profil.StripeAccount
+	if profil.StripeAccount == "" {
+		account = profil.AboDetails
+	}
+	ctx.Data(http.StatusOK, "text/html; charset=utf-8", []byte(web.RenderTemplate(valStr,account)))
 }
