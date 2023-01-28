@@ -200,6 +200,7 @@ func (web *WebAdmin) UpdateCustomer(sub stripe.Subscription) {
 	}
 	profil := web.GetOne(web.Collection, bson.M{web.MailTitle: c.Email}).Customer()
 	profil.StripeAccount = custId
+	profil.AboDetails = custId
 	profil.SubscribedProducts = c.Subscriptions.Data
 
 
