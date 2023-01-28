@@ -193,7 +193,7 @@ type Token struct {
 
 func (web *WebAdmin) CheckUser(token string, stripeEmail string) *Auth0user {
 	// Step 1: User per Mail finden
-	req, err := http.NewRequest("GET", "https://"+web.Auth0.Domain+"/api/v2/users-by-email?include_fields=true&email="+stripeEmail, nil)
+	req, err := http.NewRequest("GET", "https://"+web.Auth0.DomainAPI+"/api/v2/users-by-email?include_fields=true&email="+stripeEmail, nil)
 	if err != nil {
 		fmt.Println("Request Create Error " + err.Error())
 	}

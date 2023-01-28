@@ -68,6 +68,7 @@ type WebAdmin struct {
 
 type Auth0 struct {
 	Domain        string
+	DomainAPI        string
 	ClientId      string
 	ClientSecret  string
 	Callback      string
