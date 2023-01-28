@@ -150,8 +150,8 @@ func (web *WebAdmin) GetSubscription(userid string) []string {
 }
 
 func (web *WebAdmin) GetToken() string {
-	url := "https://" + web.Auth0.Domain + "/oauth/token"
-	s := "{\"client_id\":\"" + web.Auth0.ClientIdAPI + "\",\"client_secret\":\"" + web.Auth0.ClientSecretAPI + "\",\"audience\":\"https://" + web.Auth0.Domain + "/api/v2/\",\"grant_type\":\"client_credentials\"}"
+	url := "https://" + web.Auth0.DomainAPI + "/oauth/token"
+	s := "{\"client_id\":\"" + web.Auth0.ClientIdAPI + "\",\"client_secret\":\"" + web.Auth0.ClientSecretAPI + "\",\"audience\":\"https://" + web.Auth0.DomainAPI + "/api/v2/\",\"grant_type\":\"client_credentials\"}"
 	payload := strings.NewReader(s)
 	req, err := http.NewRequest("POST", url, payload)
 	fmt.Println(s)
