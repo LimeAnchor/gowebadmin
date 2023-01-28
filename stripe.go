@@ -72,6 +72,7 @@ func (web *WebAdmin) CustomerWrap(f http.HandlerFunc) gin.HandlerFunc {
 func (web *WebAdmin) CreateCheckoutSessionBasic(w http.ResponseWriter, r *http.Request) {
 	customerId := r.Header.Get("customer")
 	if r.Method != "POST" {
+
 		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
 		return
 	}
@@ -130,6 +131,7 @@ func (web *WebAdmin) HandleWebhook(w http.ResponseWriter, req *http.Request) {
 	bodyReader := http.MaxBytesReader(w, req.Body, MaxBodyBytes)
 	payload, err := ioutil.ReadAll(bodyReader)
 	if err != nil {
+		fmt.Println("Stripe Payload Error: ", err)
 		w.WriteHeader(http.StatusServiceUnavailable)
 		return
 	}
@@ -137,6 +139,7 @@ func (web *WebAdmin) HandleWebhook(w http.ResponseWriter, req *http.Request) {
 	signatureHeader := req.Header.Get("Stripe-Signature")
 	event, err := webhook.ConstructEvent(payload, signatureHeader, endpointSecret)
 	if err != nil {
+		fmt.Println("Stripe Construct Event Error: ", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -145,6 +148,7 @@ func (web *WebAdmin) HandleWebhook(w http.ResponseWriter, req *http.Request) {
 		var subscription stripe.Subscription
 		err = json.Unmarshal(event.Data.Raw, &subscription)
 		if err != nil {
+			fmt.Println("Stripe Customer Delete Error: ", err)
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
@@ -153,6 +157,7 @@ func (web *WebAdmin) HandleWebhook(w http.ResponseWriter, req *http.Request) {
 		var subscription stripe.Subscription
 		err = json.Unmarshal(event.Data.Raw, &subscription)
 		if err != nil {
+			fmt.Println("Stripe Customer Update Error: ", err)
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
@@ -161,6 +166,7 @@ func (web *WebAdmin) HandleWebhook(w http.ResponseWriter, req *http.Request) {
 		var subscription stripe.Subscription
 		err = json.Unmarshal(event.Data.Raw, &subscription)
 		if err != nil {
+			fmt.Println("Stripe Customer Create Error: ", err)
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
@@ -169,6 +175,7 @@ func (web *WebAdmin) HandleWebhook(w http.ResponseWriter, req *http.Request) {
 		var subscription stripe.Subscription
 		err = json.Unmarshal(event.Data.Raw, &subscription)
 		if err != nil {
+			fmt.Println("Stripe Customer Sub End Error: ", err)
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
