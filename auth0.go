@@ -319,7 +319,7 @@ func (web *WebAdmin) LogoutHandler(ctx *gin.Context) {
 		ctx.String(http.StatusInternalServerError, err.Error())
 		return
 	}
-	returnTo, err := url.Parse(web.Auth0.Domain)
+	returnTo, err := url.Parse(web.Auth0.AfterLogout)
 	if err != nil {
 		fmt.Println(err.Error())
 		ctx.String(http.StatusInternalServerError, err.Error())

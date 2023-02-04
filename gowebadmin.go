@@ -73,6 +73,7 @@ type Auth0 struct {
 	ClientSecret  string
 	Callback      string
 	AfterLogin    string
+	AfterLogout    string
 	Authenticator *Authenticator
 	ClientIdAPI string
 	ClientSecretAPI string
