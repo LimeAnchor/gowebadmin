@@ -198,6 +198,7 @@ func (web *WebAdmin) UpdateCustomer(sub stripe.Subscription) {
 	if c == nil {
 		fmt.Println("Customer not found ")
 	}
+
 	profil := web.GetOne(web.Collection, bson.M{web.MailTitle: c.Email}).Customer()
 	profil.StripeAccount = custId
 	profil.AboDetails = custId
@@ -262,7 +263,6 @@ func (web *WebAdmin) RenderTemplate(mail string, customer string) string {
 	if customer != "" {
 		x.Customer = customer
 	}
-	fmt.Println("Render Tempalte Mail ", mail)
 
 	var tpl bytes.Buffer
 	err := web.Stripe.CheckoutTemplate.ExecuteTemplate(&tpl, "request.tmpl", x)
@@ -277,13 +277,10 @@ func (web *WebAdmin) IsCustomer(ctx *gin.Context) {
 	// If user not found in database, create it
 	session := sessions.Default(ctx)
 	profile := session.Get("profile")
-	fmt.Println("try check out with profile: ", profile)
 	//Get name from profile and search for entry in database
 	valStr := GetName(profile)
-	fmt.Println("try check out with: ", valStr)
 	profil := web.GetOne(web.Collection, bson.M{web.MailTitle: valStr}).Customer()
 	if profil.StripeAccount == "" && profil.AboDetails == "" {
-		fmt.Println("Forward to checkout: ", valStr)
 		ctx.Redirect(http.StatusSeeOther, web.Stripe.Pages.Checkout.Path)
 		return
 	}
@@ -292,14 +289,11 @@ func (web *WebAdmin) IsCustomer(ctx *gin.Context) {
 func (web *WebAdmin) Checkout(ctx *gin.Context) {
 	session := sessions.Default(ctx)
 	profile := session.Get("profile")
-	fmt.Println("CH: try check out with profile: ", profile)
 	valStr := GetName(profile)
-	fmt.Println("CH: try check out with: ", valStr)
 	profil := web.GetOne(web.Collection, bson.M{web.MailTitle: valStr}).Customer()
 	account := profil.StripeAccount
 	if profil.StripeAccount == "" {
 		account = profil.AboDetails
 	}
-	fmt.Println("used mail is ",account )
 	ctx.Data(http.StatusOK, "text/html; charset=utf-8", []byte(web.RenderTemplate(valStr,account)))
 }

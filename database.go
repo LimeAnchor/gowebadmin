@@ -138,7 +138,6 @@ func (web *WebAdmin) GetOne(collection string, search bson.M) BMAP {
 
 	var d BMAP
 	err := result.Decode(&d)
-	fmt.Println(d)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
