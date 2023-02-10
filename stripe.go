@@ -196,9 +196,11 @@ func (web *WebAdmin) UpdateCustomer(sub stripe.Subscription) {
 	c, err := customer.Get(custId, &params)
 	if err != nil {
 		fmt.Println("Check Costumer failed " + err.Error())
+		return
 	}
 	if c == nil {
 		fmt.Println("Customer not found ")
+		return
 	}
 	profil := web.GetOne(web.Collection, bson.M{web.MailTitle: c.Email}).Customer()
 	profil.StripeAccount = custId
