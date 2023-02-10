@@ -92,7 +92,7 @@ func (web *WebAdmin) IsAuthenticated(ctx *gin.Context) {
 	if !profil.MailVerified {
 		auth0user := web.CheckUser(web.GetToken(), valStr)
 		if auth0user == nil {
-			ctx.Redirect(http.StatusSeeOther, "/")
+			ctx.Redirect(http.StatusSeeOther, "/login")
 			return
 		}
 
