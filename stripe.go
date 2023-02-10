@@ -186,6 +186,8 @@ func (web *WebAdmin) HandleWebhook(w http.ResponseWriter, req *http.Request) {
 }
 
 func (web *WebAdmin) UpdateCustomer(sub stripe.Subscription) {
+
+	if CheckInArray(sub.Plan.Nickname, web.Stripe.AllowedPlanNames) {
 	custId := sub.Customer.ID
 	// Check Customer
 	params := stripe.CustomerParams{}
@@ -198,17 +200,25 @@ func (web *WebAdmin) UpdateCustomer(sub stripe.Subscription) {
 	if c == nil {
 		fmt.Println("Customer not found ")
 	}
-
 	profil := web.GetOne(web.Collection, bson.M{web.MailTitle: c.Email}).Customer()
 	profil.StripeAccount = custId
 	profil.AboDetails = custId
 	profil.SubscribedProducts = c.Subscriptions.Data
-
-
-
 	// jetzt muss ich die domains anlegen
 	web.Upsert(web.Collection, profil, bson.D{{web.MailTitle, c.Email}}, true)
+	}
 }
+
+func CheckInArray(s string, arr []string) bool {
+	fmt.Println("Checking Planname: ", s)
+	for _, entry := range arr {
+		if entry == s  {
+			return true
+		}
+	}
+	return false
+}
+
 
 var tmpl *template.Template
 

@@ -64,6 +64,7 @@ type WebAdmin struct {
 	Auth0    Auth0
 	MailTitle string
 	VerifyPath string
+
 }
 
 type Auth0 struct {
@@ -93,6 +94,7 @@ type StripeConfig struct {
 	CustomHead string
 	CustomBody string
 	CustomCss string
+	AllowedPlanNames []string
 }
 
 type Pages struct {
