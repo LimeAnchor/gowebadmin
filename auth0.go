@@ -91,6 +91,11 @@ func (web *WebAdmin) IsAuthenticated(ctx *gin.Context) {
 
 	if !profil.MailVerified {
 		auth0user := web.CheckUser(web.GetToken(), valStr)
+		if auth0user == nil {
+			ctx.Redirect(http.StatusSeeOther, "/")
+			return
+		}
+
 		if auth0user.EmailVerified {
 			profil.MailVerified = true
 			web.Upsert(web.Collection, profil, bson.D{{web.MailTitle, valStr}}, true)
