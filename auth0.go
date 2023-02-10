@@ -79,9 +79,14 @@ func (web *WebAdmin) IsAuthenticated(ctx *gin.Context) {
 
 	profil := web.GetOne(web.Collection, bson.M{"EMail": valStr}).Customer()
 	if !CheckUserExists(profil) {
-		profil.EMail = valStr
-		profil.Title = valStr
-		web.InsertOne(web.Collection, profil)
+		if valStr != ""{
+			profil.EMail = valStr
+			profil.Title = valStr
+			web.InsertOne(web.Collection, profil)
+		} else {
+			ctx.Redirect(http.StatusSeeOther, "/")
+			return
+		}
 	}
 
 	if !profil.MailVerified {
@@ -91,6 +96,7 @@ func (web *WebAdmin) IsAuthenticated(ctx *gin.Context) {
 			web.Upsert(web.Collection, profil, bson.D{{web.MailTitle, valStr}}, true)
 		} else {
 			ctx.Redirect(http.StatusSeeOther, web.VerifyPath)
+			return
 		}
 
 	}
